@@ -1,0 +1,15 @@
+[Unit]
+Description=HTTP-based self-hosted embedding server
+After=network.target
+Wants=network-online.target
+
+[Service]
+Restart=always
+RestartSec=3
+User=embed_server
+Type=simple
+WorkingDirectory=/home/embed_server/modules/embedapi
+ExecStart=/home/embed_server/.local/bin/uvicorn embed_server:app --port 7000
+
+[Install]
+WantedBy=multi-user.target
