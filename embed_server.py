@@ -1,8 +1,9 @@
 import io
+import os
 from typing import List
 
 import numpy as np
-import torch.cuda
+import torch
 
 from fastapi import BackgroundTasks, FastAPI
 from sentence_transformers import SentenceTransformer
@@ -34,7 +35,10 @@ class E5Model:
 
     def __init__(self, model, device='cuda'):
         self.tokenizer = AutoTokenizer.from_pretrained(model)
-        self.model = AutoModel.from_pretrained(model)
+        if device == 'cpu':
+            self.model = AutoModel.from_pretrained(model)
+        else:
+            self.model = AutoModel.from_pretrained(model)
         if device is None or device == 'cuda':
             self.model = self.model.to('cuda')
         self.device = device
@@ -57,20 +61,27 @@ class E5Model:
 
 def initialize_model(model, device):
     if model.startswith('sentence-transformers/'):
-        return SentenceTransformer(model, device)
+        return SentenceTransformer(model, device=device)
     elif 'e5-' in model:
         return E5Model(model, device)
 
 
-def load_model(model):
-    try:
-        return initialize_model(model, 'cuda')
-    except Exception as exc:
-        import traceback
+def load_model_cpu(model):
+    print("Loading", model, "on cpu")
+    return initialize_model(model, "cpu")
 
-        traceback.print_tb(exc)
-        print("Loading", model, "on cpu")
-        return initialize_model(model, 'cpu')
+def load_model(model):
+    if os.path.exists('/tmp/.use-cpu'):
+        return load_model_cpu(model)
+    else:
+        try:
+            return initialize_model(model, 'cuda')
+        except Exception as exc:
+            import traceback
+
+            traceback.print_tb(exc)
+            return load_model_cpu(model)
+    
 
 
 models = {
@@ -79,7 +90,7 @@ models = {
 }
 
 cache_backend: CacheBackend = SQLiteCacheBackend('embeddings_cache')
-
+print("Models and cache ready")
 
 def yield_from_file(file):
     yield file.getvalue()
@@ -117,6 +128,7 @@ async def root(transformer, encode_request: EncodeRequest, background_tasks: Bac
         try:
             encoded_embeddings = model.encode(tuple(to_embed))
         finally:
+            import torch.cuda
             torch.cuda.empty_cache()
         for i, (string, embedding) in enumerate(zip(to_embed, encoded_embeddings)):
             embeddings[empty_indexes[i]] = embedding
