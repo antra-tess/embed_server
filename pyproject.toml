@@ -14,6 +14,7 @@ uvicorn = "*"
 plyvel = "*"
 msgpack = "*"
 sqlitedict = "*"
+more-itertools = "^9.1.0"
 
 [tool.poetry.group.dev.dependencies]
 [build-system]
