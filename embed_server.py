@@ -103,12 +103,18 @@ def load_model(model):
             return load_model_cpu(model)
 
 
-models = {
-    "sentence-transformers/all-mpnet-base-v2": load_model(
-        "sentence-transformers/all-mpnet-base-v2"
-    ),
-    "intfloat/e5-large-v2": load_model("intfloat/e5-large-v2"),
-}
+if os.environ.get("LAZY"):
+    models = {
+        "sentence-transformers/all-mpnet-base-v2": None,
+        "intfloat/e5-large-v2": None,
+    }
+else:
+    models = {
+        "sentence-transformers/all-mpnet-base-v2": load_model(
+            "sentence-transformers/all-mpnet-base-v2"
+        ),
+        "intfloat/e5-large-v2": load_model("intfloat/e5-large-v2"),
+    }
 
 cache_backend: CacheBackend = SQLiteCacheBackend("embeddings_cache")
 print("Models and cache ready")
@@ -135,6 +141,8 @@ async def root(
     transformer, encode_request: EncodeRequest, background_tasks: BackgroundTasks
 ):
     # fixme: support sending as binary data
+    if models[transformer] is None:
+        models[transformer] = load_model(transformer)
     model = models[transformer]
     # find cached embeddings
     # perf: would using a pre-allocated numpy array of arrays be faster?
