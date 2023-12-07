@@ -11,12 +11,10 @@ python = "^3.8"
 sentence-transformers = "*"
 fastapi = "*"
 uvicorn = "*"
-plyvel = "*"
 msgpack = "*"
 sqlitedict = "*"
 more-itertools = "^9.1.0"
 
-[tool.poetry.group.dev.dependencies]
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
