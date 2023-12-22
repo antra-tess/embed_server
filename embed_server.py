@@ -87,7 +87,7 @@ def load_model_cpu(model):
 def load_model(model):
     if torch.backends.mps.is_available():
         device = "mps"
-    elif torch.backends.cuda.is_available():
+    elif torch.cuda.is_available():
         device = "cuda"
     else:
         device = "cpu"
