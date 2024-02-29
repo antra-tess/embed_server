@@ -1,9 +1,10 @@
 import io
 import os
-from typing import List
+from typing import List, Iterable
 
 import numpy as np
 import torch
+import openai
 
 from fastapi import BackgroundTasks, FastAPI
 from sentence_transformers import SentenceTransformer
@@ -143,7 +144,16 @@ async def root(
     # fixme: support sending as binary data
     if models[transformer] is None:
         models[transformer] = load_model(transformer)
-    model = models[transformer]
+    if transformer in (
+        'text-embedding-ada-002',
+        'text-embedding-3-small',
+        'text-embedding-3-large'
+    ):
+        def encode(data: Iterable[str]):
+            from embedapi import _openai_encode_batch
+            return _openai_encode_batch(transformer, data)
+    else:
+        encode = models[transformer].encode
     # find cached embeddings
     # perf: would using a pre-allocated numpy array of arrays be faster?
     to_embed = []
@@ -162,7 +172,7 @@ async def root(
             embeddings.append(np.load(io.BytesIO(cached_data), allow_pickle=False))
     if len(to_embed) > 0:
         try:
-            encoded_embeddings = model.encode(tuple(to_embed))
+            encoded_embeddings = encode(tuple(to_embed))
         finally:
             import torch.cuda
 

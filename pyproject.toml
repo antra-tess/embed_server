@@ -4,7 +4,6 @@ version = "0.1.0"
 description = ""
 authors = ["Your Name <you@example.com>"]
 readme = "README.md"
-packages = [{include = "embed_server"}]
 
 [tool.poetry.dependencies]
 python = "^3.8"
@@ -14,6 +13,8 @@ uvicorn = "*"
 msgpack = "*"
 sqlitedict = "*"
 more-itertools = "^9.1.0"
+openai = "^1.10.0"
+embedapi = {url = "https://github.com/CrazyPython/embedapi/archive/main.zip"}
 
 [build-system]
 requires = ["poetry-core"]
