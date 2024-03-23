@@ -74,7 +74,7 @@ class E5Model:
 
 
 def initialize_model(model, device):
-    if model.startswith("sentence-transformers/") or model == 'mixedbread-ai/mxbai-embed-large-v1"':
+    if model.startswith("sentence-transformers/") or model == 'mixedbread-ai/mxbai-embed-large-v1':
         return SentenceTransformer(model, device=device)
     elif "e5-" in model:
         return E5Model(model, device)
