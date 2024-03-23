@@ -14,7 +14,7 @@ msgpack = "*"
 sqlitedict = "*"
 more-itertools = "^9.1.0"
 openai = "^1.10.0"
-embedapi = {url = "https://github.com/CrazyPython/embedapi/archive/main.zip"}
+embedapi = {git = "https://github.com/CrazyPython/embedapi.git"}
 
 [build-system]
 requires = ["poetry-core"]

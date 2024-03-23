@@ -74,7 +74,7 @@ class E5Model:
 
 
 def initialize_model(model, device):
-    if model.startswith("sentence-transformers/"):
+    if model.startswith("sentence-transformers/") or model == 'mixedbread-ai/mxbai-embed-large-v1"':
         return SentenceTransformer(model, device=device)
     elif "e5-" in model:
         return E5Model(model, device)
@@ -104,18 +104,11 @@ def load_model(model):
             return load_model_cpu(model)
 
 
-if os.environ.get("LAZY"):
-    models = {
-        "sentence-transformers/all-mpnet-base-v2": None,
-        "intfloat/e5-large-v2": None,
-    }
-else:
-    models = {
-        "sentence-transformers/all-mpnet-base-v2": load_model(
-            "sentence-transformers/all-mpnet-base-v2"
-        ),
-        "intfloat/e5-large-v2": load_model("intfloat/e5-large-v2"),
-    }
+models = {
+    "sentence-transformers/all-mpnet-base-v2": None,
+    "intfloat/e5-large-v2": None,
+    "mixedbread-ai/mxbai-embed-large-v1": None
+}
 
 cache_backend: CacheBackend = SQLiteCacheBackend("embeddings_cache")
 print("Models and cache ready")
