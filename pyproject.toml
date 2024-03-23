@@ -7,14 +7,14 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.8"
-sentence-transformers = "*"
 fastapi = "*"
 uvicorn = "*"
 msgpack = "*"
 sqlitedict = "*"
 more-itertools = "^9.1.0"
 openai = "^1.10.0"
-embedapi = {git = "https://github.com/CrazyPython/embedapi.git"}
+embedapi = { path = "../modules/embedapi" }
+sentence-transformers = "2.5.1"
 
 [build-system]
 requires = ["poetry-core"]
