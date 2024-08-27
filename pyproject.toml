@@ -18,8 +18,7 @@ uvicorn = "*"
 msgpack = "*"
 sqlitedict = "*"
 more-itertools = "^9.1.0"
-openai = "^1.10.0"
-embedapi = { path = "../modules/embedapi" }
+embedapi = {git = "https://github.com/ampdot-io/embedapi"}
 sentence-transformers = "2.5.1"
 
 [build-system]
