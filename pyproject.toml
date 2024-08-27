@@ -1,3 +1,9 @@
+[project]
+name = 'embed-server'
+
+[tool.rye.scripts]
+embed_server = "uvicorn embed_server:app --port 6009 --host localhost"
+
 [tool.poetry]
 name = "embed-server"
 version = "0.1.0"

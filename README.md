@@ -8,3 +8,9 @@ Python 3.11
 ```
 poetry run uvicorn embed_server:app --port 6009 --host localhost
 ```
+
+or
+
+```
+rye run embed_server
+```
