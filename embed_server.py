@@ -4,7 +4,6 @@ from typing import List, Iterable
 
 import numpy as np
 import torch
-import openai
 
 from fastapi import BackgroundTasks, FastAPI
 from sentence_transformers import SentenceTransformer
