@@ -145,7 +145,8 @@ async def root(
             from embedapi import _openai_encode_batch
             return _openai_encode_batch(transformer, data)
     else:
-        encode = models[transformer].encode
+        import torch
+        encode = torch.no_grad(models[transformer].encode)
     # find cached embeddings
     # perf: would using a pre-allocated numpy array of arrays be faster?
     to_embed = []
