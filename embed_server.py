@@ -1,5 +1,6 @@
 import io
 import os
+import logging
 from typing import List, Iterable
 
 import numpy as np
@@ -25,6 +26,13 @@ class EncodeRequest(BaseModel):
 
 
 app = FastAPI()
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
 class E5Model:
@@ -133,8 +141,10 @@ def add_to_cache(cache_backend, transformer, strings, embeddings):
 async def root(
     transformer, encode_request: EncodeRequest, background_tasks: BackgroundTasks
 ):
+    logger.info(f"Received encoding request for transformer '{transformer}' with {len(encode_request.input)} inputs")
     # fixme: support sending as binary data
     if models[transformer] is None:
+        logger.info(f"Loading model {transformer}")
         models[transformer] = load_model(transformer)
     if transformer in (
         'text-embedding-ada-002',
@@ -164,11 +174,11 @@ async def root(
             # perf: this loads binary->numpy->binary; one solution would be to return a JSON array instead of a numpy one
             embeddings.append(np.load(io.BytesIO(cached_data), allow_pickle=False))
     if len(to_embed) > 0:
+        logger.info(f"Encoding {len(to_embed)} uncached inputs")
         try:
             encoded_embeddings = encode(tuple(to_embed))
         finally:
             import torch.cuda
-
             torch.cuda.empty_cache()
         for i, (string, embedding) in enumerate(zip(to_embed, encoded_embeddings)):
             embeddings[empty_indexes[i]] = embedding
@@ -177,4 +187,5 @@ async def root(
         )
     virt_file = io.BytesIO()
     np.save(virt_file, embeddings, allow_pickle=False)  # type: ignore
+    logger.info(f"Dispatching response with {len(embeddings)} embeddings")
     return StreamingResponse(yield_from_file(virt_file))
