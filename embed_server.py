@@ -88,7 +88,7 @@ def initialize_model(model, device):
 
 
 def load_model_cpu(model):
-    print("Loading", model, "on cpu")
+    logger.info(f"Loading model {model} on CPU")
     return initialize_model(model, "cpu")
 
 
@@ -100,14 +100,16 @@ def load_model(model):
     else:
         device = "cpu"
     if os.path.exists("/tmp/.use-cpu"):
+        logger.info(f"Force using CPU mode due to /tmp/.use-cpu file")
         return load_model_cpu(model)
     else:
         try:
+            logger.info(f"Loading model {model} using device: {device}")
             return initialize_model(model, device)
         except Exception as exc:
             import traceback
-
             traceback.print_tb(exc)
+            logger.warning(f"Failed to load model on {device}, falling back to CPU mode")
             return load_model_cpu(model)
 
 
@@ -118,7 +120,16 @@ models = {
 }
 
 cache_backend: CacheBackend = SQLiteCacheBackend("embeddings_cache")
-print("Models and cache ready")
+
+# Log available devices at startup
+if torch.cuda.is_available():
+    logger.info(f"CUDA is available: {torch.cuda.get_device_name()}")
+elif torch.backends.mps.is_available():
+    logger.info("Apple M-series GPU (MPS) is available")
+else:
+    logger.info("No GPU detected, will use CPU")
+
+logger.info("Models and cache ready")
 
 
 def yield_from_file(file):
